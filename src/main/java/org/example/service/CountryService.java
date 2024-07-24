@@ -55,13 +55,20 @@ public class CountryService {
 
                 CountryResponse.Country country = new CountryResponse.Country();
                 country.setName(countryNode.get("name").asText());
+                country.setCapital(countryNode.get("capital").asText());
+                country.setRegion(countryNode.get("region").asText());
+                country.setSubRegion(countryNode.get("subregion").asText());
                 country.setPopulation(countryNode.get("population").asLong());
+                country.setArea(countryNode.get("area").asLong());
+
 
                 countries.add(country);
             }
 
             CountryResponse countryResponse = new CountryResponse();
             countryResponse.setCountries(countries);
+
+            countryResponse.setCountries(countryResponse.getTop10CountriesByArea());
 
             logger.info("Fetched {} countries for region: {}", countries.size(), region);
             return countryResponse;
@@ -73,4 +80,54 @@ public class CountryService {
             throw new RuntimeException(e);
         }
     }
+
+    public CountryResponse getCountriesBySubRegion(String subregion) {
+        String url = "https://countryapi.io/api/subregion/" + subregion;
+        try {
+            logger.info("Fetching countries for region: {}", subregion);
+
+            // Utwórz nagłówki z Bearer Token
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + API_KEY);
+
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            String jsonResponse = response.getBody();
+            logger.debug("API response: {}", jsonResponse);
+
+            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+            List<CountryResponse.Country> countries = new ArrayList<>();
+
+            Iterator<Map.Entry<String, JsonNode>> fields = rootNode.fields();
+            while (fields.hasNext()) {
+                Map.Entry<String, JsonNode> field = fields.next();
+                JsonNode countryNode = field.getValue();
+
+                CountryResponse.Country country = new CountryResponse.Country();
+                country.setName(countryNode.get("name").asText());
+                country.setCapital(countryNode.get("capital").asText());
+                country.setRegion(countryNode.get("region").asText());
+                country.setSubRegion(countryNode.get("subregion").asText());
+                country.setPopulation(countryNode.get("population").asLong());
+                country.setArea(countryNode.get("area").asLong());
+
+
+                countries.add(country);
+            }
+
+            CountryResponse countryResponse = new CountryResponse();
+            countryResponse.setCountries(countries);
+
+            logger.info("Fetched {} countries for region: {}", countries.size(), subregion);
+            return countryResponse;
+        } catch (HttpClientErrorException e) {
+            logger.error("Error fetching countries from API: {} {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error processing response: {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
 }

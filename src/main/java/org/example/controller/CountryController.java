@@ -18,4 +18,5 @@ public class CountryController {
     public CountryResponse getCountriesByRegion(@RequestParam String region) {
         return countryService.getCountriesByRegion(region);
     }
+
 }
