@@ -1,8 +1,6 @@
 package org.example.model;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class CountryResponse {
     private List<Country> countries;
@@ -14,16 +12,6 @@ public class CountryResponse {
     public void setCountries(List<Country> countries) {
         this.countries = countries;
     }
-    public List<Country> getTop10CountriesByArea() {
-        if (countries == null) {
-            return List.of();
-        }
-
-        return countries.stream()
-                .sorted(Comparator.comparingDouble(Country::getArea).reversed())
-                .limit(10)
-                .collect(Collectors.toList());
-    }
 
     public static class Country {
         private String name;
@@ -32,7 +20,7 @@ public class CountryResponse {
         private String subRegion;
         private long population;
         private long area;
-
+        private List<String> borders;
 
         public String getName() {
             return name;
@@ -50,12 +38,12 @@ public class CountryResponse {
             this.population = population;
         }
 
-        public void setRegion(String region) {
-            this.region = region;
-        }
-
         public String getRegion() {
             return region;
+        }
+
+        public void setRegion(String region) {
+            this.region = region;
         }
 
         public String getCapital() {
@@ -66,12 +54,12 @@ public class CountryResponse {
             this.capital = capital;
         }
 
-        public void setArea(long area) {
-            this.area = area;
-        }
-
         public long getArea() {
             return area;
+        }
+
+        public void setArea(long area) {
+            this.area = area;
         }
 
         public String getSubRegion() {
@@ -80,6 +68,14 @@ public class CountryResponse {
 
         public void setSubRegion(String subRegion) {
             this.subRegion = subRegion;
+        }
+
+        public List<String> getBorders() {
+            return borders;
+        }
+
+        public void setBorders(List<String> borders) {
+            this.borders = borders;
         }
     }
 }

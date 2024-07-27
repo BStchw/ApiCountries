@@ -13,10 +13,8 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class CountryService {
@@ -61,16 +59,25 @@ public class CountryService {
                 country.setPopulation(countryNode.get("population").asLong());
                 country.setArea(countryNode.get("area").asLong());
 
+                if (countryNode.has("borders")) {
+                    List<String> borders = new ArrayList<>();
+                    countryNode.get("borders").forEach(borderNode -> borders.add(borderNode.asText()));
+                    country.setBorders(borders);
+                }
 
                 countries.add(country);
             }
 
+            // Sortowanie krajów według powierzchni i pobieranie top 10
+            List<CountryResponse.Country> top10CountriesByArea = countries.stream()
+                    .sorted(Comparator.comparingLong(CountryResponse.Country::getArea).reversed())
+                    .limit(10)
+                    .collect(Collectors.toList());
+
             CountryResponse countryResponse = new CountryResponse();
-            countryResponse.setCountries(countries);
+            countryResponse.setCountries(top10CountriesByArea);  // Ustaw tylko top 10 krajów według powierzchni
 
-            countryResponse.setCountries(countryResponse.getTop10CountriesByArea());
-
-            logger.info("Fetched {} countries for region: {}", countries.size(), region);
+            logger.info("Fetched top 10 countries for region: {}", region);
             return countryResponse;
         } catch (HttpClientErrorException e) {
             logger.error("Error fetching countries from API: {} {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
@@ -81,10 +88,10 @@ public class CountryService {
         }
     }
 
+
     public CountryResponse getCountriesBySubRegion(String subregion) {
-        String url = "https://countryapi.io/api/subregion/" + subregion;
+        String url = "https://countryapi.io/api/all/";
         try {
-            logger.info("Fetching countries for region: {}", subregion);
 
             // Utwórz nagłówki z Bearer Token
             HttpHeaders headers = new HttpHeaders();
@@ -112,14 +119,23 @@ public class CountryService {
                 country.setPopulation(countryNode.get("population").asLong());
                 country.setArea(countryNode.get("area").asLong());
 
+                if (countryNode.has("borders")) {
+                    List<String> borders = new ArrayList<>();
+                    countryNode.get("borders").forEach(borderNode -> borders.add(borderNode.asText()));
+                    country.setBorders(borders);
+                }
 
-                countries.add(country);
+                List<String> countryBorders = country.getBorders();
+
+                if(countryBorders.size()>3 && country.getSubRegion().equals(subregion))    {
+                    countries.add(country);
+                }
             }
 
             CountryResponse countryResponse = new CountryResponse();
             countryResponse.setCountries(countries);
 
-            logger.info("Fetched {} countries for region: {}", countries.size(), subregion);
+            logger.info("Fetched {} countries for region: {}", countries.size());
             return countryResponse;
         } catch (HttpClientErrorException e) {
             logger.error("Error fetching countries from API: {} {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
