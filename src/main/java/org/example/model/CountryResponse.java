@@ -4,6 +4,7 @@ import java.util.List;
 
 public class CountryResponse {
     private List<Country> countries;
+    private long sumOfPopulation;
 
     public List<Country> getCountries() {
         return countries;
@@ -11,6 +12,19 @@ public class CountryResponse {
 
     public void setCountries(List<Country> countries) {
         this.countries = countries;
+        this.sumOfPopulation = calculateSumOfPopulation();
+    }
+    public long getSumOfPopulation() {
+        return sumOfPopulation;
+    }
+
+    private long calculateSumOfPopulation() {
+        if (countries == null) {
+            return 0;
+        }
+        return countries.stream()
+                .mapToLong(Country::getPopulation)
+                .sum();
     }
 
     public static class Country {
