@@ -1,6 +1,6 @@
 # ApiCountries
 
-ApiCountries is a Java-based RESTful web service application that provides information about countries. It uses Spring Boot for the application framework and includes various functionalities such as fetching country details by region or subregion, and exporting the data in different formats like JSON and CSV.
+ApiCountries is a Java-based RESTful web service application that provides information about countries. It uses Spring Boot for the application framework and includes various functionalities such as fetching country details by region or subregion, population of subregion, and exporting the data in different formats like JSON and CSV.
 
 ## Table of Contents
 
