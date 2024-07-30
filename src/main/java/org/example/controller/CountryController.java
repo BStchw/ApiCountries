@@ -3,6 +3,7 @@ package org.example.controller;
 import org.example.model.CountryResponse;
 import org.example.service.CountryService;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -88,4 +89,27 @@ public class CountryController {
             return ResponseEntity.ok(countryResponse);
         }
     }
+
+    /**
+     * Retrieves the sum of population for countries in a specific subregion.
+     * <p>
+     * This endpoint returns the total population of all countries in the specified subregion.
+     * </p>
+     *
+     * @param subregion the subregion to calculate the population sum for
+     * @return a {@link ResponseEntity} containing the sum of population for the specified subregion
+     */
+    @GetMapping("/subregion/population")
+    public ResponseEntity<Long> getSumOfPopulationBySubregion(
+            @RequestParam String subregion) {
+
+        try {
+            long sumOfPopulation = countryService.getSumOfPopulationOfSubregion(subregion);
+            return ResponseEntity.ok(sumOfPopulation);
+        } catch (Exception e) {
+            // Log the error and return an appropriate response
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 }
