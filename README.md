@@ -55,7 +55,7 @@ mvn test
     - `region` (required): The region to fetch countries for. Example values: `Europe`, `Asia`.
     - `format` (optional): The response format. Values can be `json` or `csv`. Default is `json`.
 - **Response**: A list of top 10 countries by area in the specified region.
--  **Example Usage:**
+  **Example Usage:**
 
 ```http
 GET http://localhost:8080/countries/region?region=europe&format=csv
@@ -70,7 +70,7 @@ GET http://localhost:8080/countries/region?region=europe&format=csv
     - `format` (optional): The response format. Values can be `json` or `csv`. Default is `json`.
 - **Response**: List of countries from the specified subregion that have more than three borders.
 
-- - **Example Usage:**
+ **Example Usage:**
 
 ```http
 GET http://localhost:8080/countries/subregion?subregion=Northern Europe&format=csv
