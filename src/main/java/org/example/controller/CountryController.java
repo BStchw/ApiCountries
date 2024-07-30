@@ -10,15 +10,38 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * REST controller for handling requests related to country information.
+ * <p>
+ * This controller provides endpoints to retrieve country data by region and subregion.
+ * </p>
+ */
 @RestController
 @RequestMapping("/countries")
 public class CountryController {
+
     private final CountryService countryService;
 
+    /**
+     * Constructs a new {@link CountryController} with the specified {@link CountryService}.
+     *
+     * @param countryService the service to be used for retrieving country data
+     */
     public CountryController(CountryService countryService) {
         this.countryService = countryService;
     }
 
+    /**
+     * Retrieves a list of countries by region.
+     * <p>
+     * This endpoint returns country data in either JSON or CSV format, based on the
+     * specified format parameter.
+     * </p>
+     *
+     * @param region the region to filter countries by
+     * @param format the response format (either "json" or "csv"), default is "json"
+     * @return a {@link ResponseEntity} containing the list of countries in the specified format
+     */
     @GetMapping("/region")
     public ResponseEntity<?> getCountriesByRegion(
             @RequestParam String region,
@@ -37,6 +60,17 @@ public class CountryController {
         }
     }
 
+    /**
+     * Retrieves a list of countries by subregion.
+     * <p>
+     * This endpoint returns country data in either JSON or CSV format, based on the
+     * specified format parameter.
+     * </p>
+     *
+     * @param subregion the subregion to filter countries by
+     * @param format the response format (either "json" or "csv"), default is "json"
+     * @return a {@link ResponseEntity} containing the list of countries in the specified format
+     */
     @GetMapping("/subregion")
     public ResponseEntity<?> getCountriesBySubRegion(
             @RequestParam String subregion,

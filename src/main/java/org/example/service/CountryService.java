@@ -17,25 +17,43 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for retrieving and processing country data.
+ * This class provides methods for fetching country information from an external API,
+ * converting data to CSV format, and calculating population statistics.
+ */
 @Service
 public class CountryService {
+
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private static final Logger logger = LoggerFactory.getLogger(CountryService.class);
     private static final String API_KEY = "aBJns6RncdtFogHf73stUIhfTPZuqdNV1JunNWzZ";
 
+    /**
+     * Constructs a new {@code CountryService} with the specified {@link RestTemplate}.
+     *
+     * @param restTemplate the {@code RestTemplate} to use for making HTTP requests
+     */
     public CountryService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
         this.objectMapper = new ObjectMapper();
     }
 
+    /**
+     * Retrieves the top 10 countries by area in the specified region.
+     * The results are cached to improve performance.
+     *
+     * @param region the region to fetch countries from
+     * @return a {@link CountryResponse} containing the top 10 countries by area
+     */
     @Cacheable("countriesByRegion")
     public CountryResponse getCountriesByRegion(String region) {
         String url = "https://countryapi.io/api/region/" + region;
         try {
             logger.info("Fetching countries for region: {}", region);
 
-            // Utwórz nagłówki z Bearer Token
+            // Create headers with Bearer Token
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + API_KEY);
 
@@ -70,14 +88,14 @@ public class CountryService {
                 countries.add(country);
             }
 
-            // Sortowanie krajów według powierzchni i pobieranie top 10
+            // Sort countries by area and retrieve top 10
             List<CountryResponse.Country> top10CountriesByArea = countries.stream()
                     .sorted(Comparator.comparingLong(CountryResponse.Country::getArea).reversed())
                     .limit(10)
                     .collect(Collectors.toList());
 
             CountryResponse countryResponse = new CountryResponse();
-            countryResponse.setCountries(top10CountriesByArea);  // Ustaw tylko top 10 krajów według powierzchni
+            countryResponse.setCountries(top10CountriesByArea);
 
             logger.info("Fetched top 10 countries for region: {}", region);
             return countryResponse;
@@ -90,13 +108,18 @@ public class CountryService {
         }
     }
 
-
+    /**
+     * Retrieves countries from the specified subregion that have more than three borders.
+     * The results are cached to improve performance.
+     *
+     * @param subregion the subregion to fetch countries from
+     * @return a {@link CountryResponse} containing the list of countries
+     */
     @Cacheable("countriesBySubRegion")
     public CountryResponse getCountriesBySubRegion(String subregion) {
         String url = "https://countryapi.io/api/all/";
         try {
-
-            // Utwórz nagłówki z Bearer Token
+            // Create headers with Bearer Token
             HttpHeaders headers = new HttpHeaders();
             headers.set("Authorization", "Bearer " + API_KEY);
 
@@ -130,7 +153,7 @@ public class CountryService {
 
                 List<String> countryBorders = country.getBorders();
 
-                if(countryBorders.size()>3 && country.getSubRegion().equals(subregion))    {
+                if (countryBorders.size() > 3 && country.getSubRegion().equals(subregion)) {
                     countries.add(country);
                 }
             }
@@ -138,7 +161,7 @@ public class CountryService {
             CountryResponse countryResponse = new CountryResponse();
             countryResponse.setCountries(countries);
 
-            logger.info("Fetched {} countries for region: {}", countries.size());
+            logger.info("Fetched {} countries for subregion: {}", countries.size(), subregion);
             return countryResponse;
         } catch (HttpClientErrorException e) {
             logger.error("Error fetching countries from API: {} {}", e.getStatusCode(), e.getResponseBodyAsString(), e);
@@ -149,6 +172,12 @@ public class CountryService {
         }
     }
 
+    /**
+     * Converts a list of countries to a CSV format.
+     *
+     * @param countries the list of countries to convert
+     * @return a CSV string representation of the countries
+     */
     public String convertToCSV(List<CountryResponse.Country> countries) {
         StringBuilder csvBuilder = new StringBuilder();
         csvBuilder.append("name,capital,region,subRegion,population,area,borders\n");
@@ -166,6 +195,12 @@ public class CountryService {
         return csvBuilder.toString();
     }
 
+    /**
+     * Retrieves the sum of the population of all countries in the specified subregion.
+     *
+     * @param subregion the subregion to calculate the population sum for
+     * @return the total population of the subregion
+     */
     public long getSumOfPopulationOfSubregion(String subregion) {
         String url = "https://countryapi.io/api/all/";
         try {
